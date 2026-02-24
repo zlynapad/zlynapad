@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><!-- SITE TITLE --> — <!-- TAGLINE --></title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════
+   TOKENS & VARIABLES
+   → Zmeň farby, fonty a spacing tu
+═══════════════════════════════════════ */
+:root {
+  /* VRSTVA 1 — Verejná */
+  --red:        #D92B2B;   /* hlavná akcentová farba */
+  --red-hot:    #FF3B2F;   /* hover stav */
+  --red-dark:   #8C0F0F;   /* tmavší odtieň */
+  --coal:       #111111;   /* pozadie stránky */
+  --ink:        #1C1C1E;   /* karty a panely */
+  --ash:        #2E2E2E;   /* borders */
+  --smoke:      #4A4A4A;   /* sekundárny text */
+  --bone:       #F0EDE6;   /* primárny text */
+  --cream:      #FAF8F4;
+  --amber:      #E8A020;   /* stredné riziko badge */
+  --amber-dark: #B07A12;
+
+  /* VRSTVA 2 — Premium */
+  --pro-navy:     #0B1829;
+  --pro-slate:    #1E2D42;
+  --pro-steel:    #2C3E52;
+  --pro-silver:   #8FA3B1;
+  --pro-white:    #F5F7FA;
+  --pro-gold:     #C9A84C;
+  --pro-gold-lt:  #E8CC7A;
+  --pro-divider:  #2C3E52;
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-serif:   'DM Serif Display', Georgia, serif;
+  --font-body:    'Crimson Pro', Georgia, serif;
+  --font-mono:    'DM Mono', monospace;
+
+  --nav-h: 60px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--coal);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+.cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  background: var(--red);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s var(--ease), height 0.3s var(--ease), background 0.2s;
+  mix-blend-mode: difference;
+}
+.cursor.hovering { width: 40px; height: 40px; }
+.cursor.premium  { background: var(--pro-gold); width: 40px; height: 40px; mix-blend-mode: normal; opacity: 0.6; }
+
+a { color: inherit; text-decoration: none; cursor: none; }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--coal); }
+::-webkit-scrollbar-thumb { background: var(--red); }
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(17,17,17,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--ash);
+  transition: border-color 0.3s;
+}
+nav.scrolled { border-bottom-color: var(--red); }
+nav.pro-mode { background: rgba(11,24,41,0.97); border-bottom-color: var(--pro-gold); }
+
+.nav-logo { display: flex; align-items: center; gap: 12px; }
+.nav-logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
+.nav-logo-icon svg { width: 100%; height: 100%; }
+.nav-brand { font-family: var(--font-display); font-size: 22px; letter-spacing: 3px; color: var(--bone); line-height: 1; }
+.nav-brand span { color: var(--red); }
+
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--smoke);
+  position: relative;
+  transition: color 0.2s;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 1px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+}
+.nav-links a:hover { color: var(--bone); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-links a.premium-link { color: var(--pro-gold); }
+.nav-links a.premium-link::after { background: var(--pro-gold); }
+
+.nav-right { display: flex; align-items: center; gap: 12px; }
+
+.layer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--ash);
+  overflow: hidden;
+}
+.layer-btn {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--smoke);
+  border: none;
+  cursor: none;
+  transition: all 0.2s;
+  border-right: 1px solid var(--ash);
+}
+.layer-btn:last-child { border-right: none; }
+.layer-btn.active-l1 { background: var(--red); color: white; }
+.layer-btn.active-l2 { background: var(--pro-gold); color: var(--pro-navy); }
+.layer-btn:not(.active-l1):not(.active-l2):hover { color: var(--bone); background: rgba(255,255,255,0.05); }
+
+/* → Nahraď href a text sociálnej siete */
+.nav-social {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--smoke); border: 1px solid var(--ash); padding: 7px 14px;
+  transition: all 0.25s;
+}
+.nav-social:hover { color: var(--bone); border-color: var(--red); background: rgba(217,43,43,0.08); }
+.nav-social svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* ═══════════════════════════════════════
+   LAYER PANELS
+═══════════════════════════════════════ */
+.layer-panel { transition: opacity 0.5s var(--ease); }
+.layer-panel.hidden { display: none; }
+
+/* ═══════════════════════════════════════
+   HERO — VRSTVA 1
+═══════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: calc(var(--nav-h) + 60px) 40px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-ghost {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none; user-select: none; overflow: hidden;
+}
+/* → Zmeň text ghost watermarku tu (v HTML) */
+.hero-ghost span {
+  font-family: var(--font-display);
+  font-size: clamp(100px, 20vw, 260px);
+  letter-spacing: -2px;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(217,43,43,0.07);
+  line-height: 0.9;
+  animation: ghostDrift 20s ease-in-out infinite alternate;
+}
+@keyframes ghostDrift {
+  from { transform: translateX(-20px) rotate(-1deg); }
+  to   { transform: translateX(20px) rotate(1deg); }
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4; pointer-events: none; z-index: 1;
+}
+.hero-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--red); z-index: 5;
+  transform-origin: left;
+  animation: barReveal 1.2s var(--ease) 0.2s both;
+}
+@keyframes barReveal { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.hero-content { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; width: 100%; }
+.hero-eyebrow {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 5px;
+  text-transform: uppercase; color: var(--red); margin-bottom: 24px;
+  display: flex; align-items: center; gap: 14px;
+  animation: fadeUp 0.8s var(--ease) 0.4s both;
+}
+.hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--red); }
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 12vw, 156px);
+  line-height: 0.88; letter-spacing: 1px; margin-bottom: 32px;
+  animation: fadeUp 0.9s var(--ease) 0.55s both;
+}
+.hero-headline .line2 { color: var(--red); display: block; }
+.hero-sub {
+  font-family: var(--font-body); font-style: italic;
+  font-size: clamp(16px, 2vw, 22px); color: var(--smoke);
+  max-width: 520px; margin-bottom: 48px;
+  animation: fadeUp 0.9s var(--ease) 0.7s both;
+}
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeUp 0.9s var(--ease) 0.85s both; }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--red); color: white;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  padding: 16px 32px; border: 1px solid var(--red);
+  transition: all 0.25s var(--ease); position: relative; overflow: hidden;
+}
+.btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--red-hot); transform: translateX(-100%);
+  transition: transform 0.3s var(--ease);
+}
+.btn-primary:hover::before { transform: translateX(0); }
+.btn-primary span, .btn-primary svg { position: relative; z-index: 1; }
+.btn-primary svg { width: 14px; height: 14px; fill: white; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: transparent; color: var(--bone);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  padding: 16px 32px; border: 1px solid var(--ash); transition: all 0.25s;
+}
+.btn-secondary:hover { border-color: var(--bone); background: rgba(240,237,230,0.05); }
+.btn-secondary svg { width: 14px; height: 14px; fill: currentColor; }
+
+.hero-divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, var(--red) 0%, rgba(217,43,43,0.1) 50%, transparent 100%);
+  margin-top: 60px; animation: fadeIn 1s 1.2s both;
+}
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ═══════════════════════════════════════
+   HERO — VRSTVA 2 PREMIUM
+═══════════════════════════════════════ */
+.hero-pro {
+  min-height: 100vh;
+  background: var(--pro-navy);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: calc(var(--nav-h) + 60px) 40px 80px;
+  position: relative; overflow: hidden;
+}
+.hero-pro::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(201,168,76,0.04) 0%, transparent 50%),
+              linear-gradient(225deg, rgba(201,168,76,0.03) 0%, transparent 40%);
+  pointer-events: none;
+}
+.hero-pro-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(44,62,82,0.4) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(44,62,82,0.4) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 75%);
+}
+.hero-pro-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, var(--pro-gold), var(--pro-gold-lt), transparent);
+  z-index: 5; animation: barReveal 1.4s var(--ease) 0.3s both;
+}
+/* → Zmeň text watermarku tu (v HTML) */
+.hero-pro-watermark {
+  position: absolute; right: -40px; bottom: 60px;
+  font-family: var(--font-display);
+  font-size: clamp(120px, 18vw, 220px);
+  color: transparent; -webkit-text-stroke: 1px rgba(201,168,76,0.06);
+  pointer-events: none; user-select: none;
+  letter-spacing: -4px; line-height: 1; writing-mode: vertical-rl;
+}
+.hero-pro-content { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; width: 100%; }
+.hero-pro-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--pro-navy); background: var(--pro-gold); padding: 6px 16px; margin-bottom: 32px;
+  animation: fadeUp 0.8s var(--ease) 0.4s both;
+}
+.hero-pro-badge::before { content: '◆'; font-size: 8px; }
+.hero-pro-headline {
+  font-family: var(--font-serif); font-size: clamp(48px, 7vw, 96px);
+  line-height: 1.05; color: var(--pro-white); margin-bottom: 24px; font-weight: 400;
+  animation: fadeUp 0.9s var(--ease) 0.55s both;
+}
+.hero-pro-headline em { font-style: italic; color: var(--pro-gold-lt); display: block; }
+.hero-pro-sub {
+  font-family: var(--font-body); font-size: clamp(15px, 1.5vw, 19px);
+  color: var(--pro-silver); max-width: 560px; margin-bottom: 48px; line-height: 1.8;
+  animation: fadeUp 0.9s var(--ease) 0.7s both;
+}
+.hero-pro-actions { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeUp 0.9s var(--ease) 0.85s both; }
+
+.btn-pro-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--pro-gold); color: var(--pro-navy);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  padding: 16px 32px; border: 1px solid var(--pro-gold);
+  transition: all 0.25s var(--ease); position: relative; overflow: hidden; font-weight: 500;
+}
+.btn-pro-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--pro-gold-lt); transform: translateX(-100%);
+  transition: transform 0.3s var(--ease);
+}
+.btn-pro-primary:hover::before { transform: translateX(0); }
+.btn-pro-primary span, .btn-pro-primary svg { position: relative; z-index: 1; }
+.btn-pro-primary svg { width: 14px; height: 14px; }
+.btn-pro-secondary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: transparent; color: var(--pro-silver);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  padding: 16px 32px; border: 1px solid var(--pro-divider); transition: all 0.25s;
+}
+.btn-pro-secondary:hover { border-color: var(--pro-gold); color: var(--pro-gold-lt); }
+
+.hero-pro-metrics {
+  display: flex; gap: 40px; margin-top: 60px; padding-top: 40px;
+  border-top: 1px solid var(--pro-divider);
+  animation: fadeUp 1s var(--ease) 1s both;
+}
+.pro-metric-num { font-family: var(--font-display); font-size: 44px; color: var(--pro-gold); letter-spacing: 2px; line-height: 1; }
+.pro-metric-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--pro-silver); margin-top: 4px; }
+
+/* ═══════════════════════════════════════
+   TICKER
+   → Zmeň položky tickeru v HTML
+═══════════════════════════════════════ */
+.ticker { background: var(--red); padding: 12px 0; overflow: hidden; white-space: nowrap; }
+.ticker-inner { display: inline-flex; animation: tickerScroll 30s linear infinite; }
+.ticker-inner span {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: white; padding: 0 24px; opacity: 0.9;
+}
+.ticker-inner .sep { color: rgba(255,255,255,0.4); padding: 0; }
+@keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ═══════════════════════════════════════
+   SECTION SHARED
+═══════════════════════════════════════ */
+.section-label {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--red);
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--ash); }
+.section-label.pro { color: var(--pro-gold); }
+.section-label.pro::after { background: var(--pro-divider); }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 0.95; letter-spacing: 1px; margin-bottom: 40px;
+}
+.section-title-pro {
+  font-family: var(--font-serif); font-size: clamp(28px, 4vw, 52px);
+  line-height: 1.1; margin-bottom: 40px; color: var(--pro-white); font-weight: 400;
+}
+.section-title-pro em { font-style: italic; color: var(--pro-gold-lt); }
+
+/* ═══════════════════════════════════════
+   FEATURED POSTS — L1
+═══════════════════════════════════════ */
+.featured { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
+.featured-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+
+.featured-main {
+  background: var(--ink); border: 1px solid var(--ash);
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+  transition: border-color 0.3s;
+}
+.featured-main:hover { border-color: var(--red); }
+.featured-main-img {
+  height: 320px; background: var(--coal);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+/* → Logo / ikona hlavného príspevku */
+.post-visual { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+.post-visual svg { width: 140px; height: 140px; animation: visualPulse 4s ease-in-out infinite; }
+@keyframes visualPulse { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
+.post-visual-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 40%, rgba(217,43,43,0.12) 0%, transparent 60%); }
+
+.featured-main-body { padding: 32px; flex: 1; display: flex; flex-direction: column; }
+.post-category { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 12px; }
+.post-title { font-family: var(--font-serif); font-size: clamp(22px, 3vw, 32px); line-height: 1.2; color: var(--bone); margin-bottom: 16px; transition: color 0.2s; }
+.featured-main:hover .post-title { color: white; }
+.post-excerpt { font-size: 16px; color: var(--smoke); line-height: 1.7; flex: 1; margin-bottom: 24px; }
+.post-meta { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--ash); padding-top: 16px; }
+.post-date { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--smoke); text-transform: uppercase; }
+.score-badge { background: var(--red); color: white; font-family: var(--font-mono); font-size: 10px; font-weight: 500; padding: 3px 8px; letter-spacing: 1px; }
+.score-badge.low  { background: #2E7D32; }
+.score-badge.mid  { background: var(--amber); color: var(--coal); }
+.score-badge.high { background: var(--red); }
+
+.read-more { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); margin-top: 16px; transition: gap 0.2s; }
+.read-more:hover { gap: 14px; }
+.read-more::after { content: '→'; }
+
+.featured-side { display: flex; flex-direction: column; gap: 2px; }
+.featured-side-card {
+  background: var(--ink); border: 1px solid var(--ash);
+  padding: 24px; flex: 1; position: relative; overflow: hidden;
+  transition: border-color 0.3s, background 0.3s; display: flex; flex-direction: column;
+}
+.featured-side-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--red);
+  transform: scaleY(0); transform-origin: bottom; transition: transform 0.3s var(--ease);
+}
+.featured-side-card:hover { border-color: var(--red); background: rgba(217,43,43,0.04); }
+.featured-side-card:hover::before { transform: scaleY(1); }
+.side-card-cat { font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+.side-card-title { font-family: var(--font-serif); font-size: 18px; line-height: 1.3; color: var(--bone); margin-bottom: 10px; flex: 1; }
+.side-card-excerpt { font-size: 14px; color: var(--smoke); line-height: 1.6; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.side-card-footer { display: flex; align-items: center; justify-content: space-between; }
+
+/* ═══════════════════════════════════════
+   COUNTER STRIP
+   → Zmeň čísla (data-target) a popisky v HTML
+═══════════════════════════════════════ */
+.counter-strip { background: var(--ink); border-top: 1px solid var(--ash); border-bottom: 1px solid var(--ash); padding: 40px; }
+.counter-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--ash); }
+.counter-item { background: var(--ink); padding: 32px 24px; text-align: center; }
+.counter-num { font-family: var(--font-display); font-size: 52px; color: var(--red); line-height: 1; margin-bottom: 6px; letter-spacing: 2px; }
+.counter-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--smoke); }
+
+/* ═══════════════════════════════════════
+   BLOG GRID — L1
+═══════════════════════════════════════ */
+.blog-section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
+.blog-filter { display: flex; gap: 4px; margin-bottom: 40px; flex-wrap: wrap; }
+.filter-btn { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 8px 18px; background: transparent; color: var(--smoke); border: 1px solid var(--ash); cursor: none; transition: all 0.2s; }
+.filter-btn.active, .filter-btn:hover { background: var(--red); color: white; border-color: var(--red); }
+
+.blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.blog-card { background: var(--ink); border: 1px solid var(--ash); display: flex; flex-direction: column; position: relative; overflow: hidden; transition: border-color 0.3s, transform 0.3s var(--ease); }
+.blog-card:hover { border-color: var(--red); transform: translateY(-4px); z-index: 2; }
+.blog-card-visual { height: 160px; background: var(--coal); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.blog-card-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 60%, var(--ink)); }
+/* → Pridaj vlastné farebnné triedy pre kategórie */
+.blog-card-visual.cat-zahrada { background: #0d1a0d; }
+.blog-card-visual.cat-biznis  { background: #0d0d1a; }
+.blog-card-visual.cat-domov   { background: #1a0d0d; }
+.blog-card-visual.cat-financie { background: #1a1400; }
+.visual-icon { font-size: 48px; opacity: 0.4; position: relative; z-index: 1; }
+.blog-card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+.blog-card-cat { font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+.blog-card-title { font-family: var(--font-serif); font-size: 18px; line-height: 1.3; color: var(--bone); margin-bottom: 10px; flex: 1; transition: color 0.2s; }
+.blog-card:hover .blog-card-title { color: white; }
+.blog-card-excerpt { font-size: 14px; color: var(--smoke); line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--ash); padding-top: 14px; margin-top: auto; }
+
+/* ═══════════════════════════════════════
+   PREMIUM SECTION — VRSTVA 2
+═══════════════════════════════════════ */
+.pro-section { background: var(--pro-navy); position: relative; overflow: hidden; }
+.pro-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(44,62,82,0.3) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(44,62,82,0.3) 1px, transparent 1px);
+  background-size: 60px 60px; pointer-events: none;
+}
+.pro-section-bar { height: 2px; background: linear-gradient(90deg, var(--pro-gold), var(--pro-gold-lt), rgba(201,168,76,0.1)); }
+.pro-reports { padding: 80px 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+
+/* Auth gate */
+.pro-gate { padding: 80px 40px; max-width: 800px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+.pro-gate-icon { width: 72px; height: 72px; border: 1px solid var(--pro-gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; }
+.pro-gate-icon svg { width: 32px; height: 32px; fill: var(--pro-gold); }
+.pro-gate-title { font-family: var(--font-serif); font-size: 42px; color: var(--pro-white); margin-bottom: 16px; font-weight: 400; }
+.pro-gate-desc { font-size: 17px; color: var(--pro-silver); margin-bottom: 40px; font-style: italic; line-height: 1.8; }
+
+.pro-login-form { display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto; }
+.pro-input { background: var(--pro-slate); border: 1px solid var(--pro-divider); color: var(--pro-white); font-family: var(--font-body); font-size: 16px; padding: 14px 20px; outline: none; transition: border-color 0.2s; width: 100%; }
+.pro-input::placeholder { color: var(--pro-silver); opacity: 0.6; }
+.pro-input:focus { border-color: var(--pro-gold); }
+.pro-login-btn { background: var(--pro-gold); color: var(--pro-navy); font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 14px 32px; border: none; cursor: none; transition: background 0.2s; font-weight: 500; }
+.pro-login-btn:hover { background: var(--pro-gold-lt); }
+.pro-gate-divider { display: flex; align-items: center; gap: 16px; margin: 8px 0; }
+.pro-gate-divider span { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--pro-silver); }
+.pro-gate-divider::before, .pro-gate-divider::after { content: ''; flex: 1; height: 1px; background: var(--pro-divider); }
+.pro-trial-note { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: var(--pro-silver); margin-top: 16px; }
+.pro-trial-note span { color: var(--pro-gold); }
+
+/* Report cards */
+.pro-reports-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.pro-report-card { background: var(--pro-slate); border: 1px solid var(--pro-divider); display: flex; flex-direction: column; position: relative; overflow: hidden; transition: border-color 0.3s; }
+.pro-report-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--pro-gold); transform: scaleY(0); transform-origin: top; transition: transform 0.4s var(--ease); }
+.pro-report-card:hover { border-color: var(--pro-gold); }
+.pro-report-card:hover::before { transform: scaleY(1); }
+
+.pro-report-header { padding: 24px 24px 0; display: flex; align-items: flex-start; justify-content: space-between; }
+.pro-report-num { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--pro-gold); text-transform: uppercase; }
+.pro-report-score-wrap { text-align: right; }
+.pro-report-score-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--pro-silver); display: block; }
+.pro-report-score-val { font-family: var(--font-display); font-size: 32px; color: var(--pro-white); letter-spacing: 2px; line-height: 1; }
+
+.pro-report-body { padding: 20px 24px 24px; flex: 1; display: flex; flex-direction: column; }
+.pro-report-cat { font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--pro-silver); margin-bottom: 10px; }
+.pro-report-title { font-family: var(--font-serif); font-size: 18px; line-height: 1.35; color: var(--pro-white); margin-bottom: 12px; flex: 1; }
+
+.pro-data-bars { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+.pro-bar-row { display: flex; align-items: center; gap: 10px; }
+.pro-bar-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; color: var(--pro-silver); width: 60px; flex-shrink: 0; text-transform: uppercase; }
+.pro-bar-track { flex: 1; height: 3px; background: var(--pro-steel); position: relative; }
+.pro-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--pro-gold); transition: width 1s var(--ease); }
+.pro-bar-fill.risk { background: var(--red); }
+.pro-bar-val { font-family: var(--font-mono); font-size: 9px; color: var(--pro-gold); width: 30px; text-align: right; }
+
+.pro-report-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--pro-divider); padding-top: 14px; margin-top: auto; }
+.pro-report-date { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--pro-silver); text-transform: uppercase; }
+.pro-report-link { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--pro-gold); display: flex; align-items: center; gap: 4px; transition: gap 0.2s; }
+.pro-report-link:hover { gap: 8px; }
+.pro-report-link::after { content: '→'; }
+
+/* Premium features strip */
+.pro-features { padding: 60px 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+.pro-features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+.pro-feature-card { background: var(--pro-slate); border: 1px solid var(--pro-divider); padding: 28px 24px; position: relative; }
+.pro-feature-icon { font-family: var(--font-mono); font-size: 24px; color: var(--pro-gold); margin-bottom: 12px; line-height: 1; display: block; }
+.pro-feature-name { font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; color: var(--pro-white); margin-bottom: 8px; }
+.pro-feature-desc { font-size: 14px; color: var(--pro-silver); line-height: 1.6; }
+
+/* Pricing */
+.pro-pricing { padding: 80px 40px; max-width: 800px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+.pro-price-box { background: var(--pro-slate); border: 1px solid var(--pro-gold); padding: 48px; position: relative; overflow: hidden; }
+.pro-price-box::before {
+  content: 'PREMIUM'; /* → zmeň watermark text */
+  position: absolute; right: -20px; top: 20px;
+  font-family: var(--font-display); font-size: 80px;
+  color: transparent; -webkit-text-stroke: 1px rgba(201,168,76,0.06);
+  pointer-events: none; user-select: none; letter-spacing: 4px;
+}
+.pro-price-badge { display: inline-block; background: var(--pro-gold); color: var(--pro-navy); font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; padding: 5px 14px; margin-bottom: 24px; }
+.pro-price-amount { font-family: var(--font-display); font-size: 80px; color: var(--pro-white); letter-spacing: 2px; line-height: 1; }
+.pro-price-period { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: var(--pro-silver); margin-bottom: 32px; text-transform: uppercase; }
+.pro-price-features { list-style: none; text-align: left; margin-bottom: 40px; display: flex; flex-direction: column; gap: 12px; }
+.pro-price-features li { display: flex; align-items: center; gap: 12px; font-size: 16px; color: var(--pro-silver); }
+.pro-price-features li::before { content: '◆'; color: var(--pro-gold); font-size: 8px; flex-shrink: 0; }
+.pro-price-divider { height: 1px; background: var(--pro-divider); margin: 24px 0; }
+
+/* ═══════════════════════════════════════
+   SOCIAL CTA SECTION
+   → Nahraď platformu / text / odkaz
+═══════════════════════════════════════ */
+.social-section {
+  background: var(--ink); border-top: 1px solid var(--ash); border-bottom: 3px solid var(--red);
+  padding: 80px 40px; position: relative; overflow: hidden;
+}
+.social-section::before {
+  content: 'SOCIAL'; /* → zmeň text */
+  position: absolute; right: -20px; top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  font-family: var(--font-display); font-size: 100px;
+  color: transparent; -webkit-text-stroke: 1px rgba(217,43,43,0.08);
+  pointer-events: none; user-select: none;
+}
+.social-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.social-headline { font-family: var(--font-display); font-size: clamp(36px, 5vw, 60px); line-height: 0.95; margin-bottom: 20px; }
+.social-headline span { color: var(--red); display: block; }
+.social-desc { font-size: 17px; color: var(--smoke); line-height: 1.7; margin-bottom: 32px; font-style: italic; }
+.social-stats { display: flex; gap: 32px; margin-bottom: 32px; }
+.social-stat-num { font-family: var(--font-display); font-size: 36px; color: var(--bone); letter-spacing: 2px; line-height: 1; }
+.social-stat-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--smoke); margin-top: 4px; }
+
+/* → Nahraď farbu sociálnej siete */
+.btn-social { display: inline-flex; align-items: center; gap: 10px; background: #1877F2; color: white; font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 16px 28px; border: 1px solid #1877F2; transition: all 0.25s; }
+.btn-social:hover { background: #1565D8; }
+.btn-social svg { width: 16px; height: 16px; fill: white; flex-shrink: 0; }
+
+/* Social post mockup */
+.social-post-mock { background: #18191A; border: 1px solid #3A3B3C; border-radius: 2px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+.social-post-header { background: #242526; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+.social-avatar { width: 36px; height: 36px; background: var(--ink); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--ash); }
+.social-post-name { font-size: 13px; font-weight: 600; color: #E3E3E3; line-height: 1.2; }
+.social-post-time { font-size: 11px; color: #6A6A6A; margin-top: 1px; }
+.social-post-content { padding: 14px 16px; }
+.social-post-text { font-size: 14px; color: #E3E3E3; line-height: 1.6; margin-bottom: 12px; }
+.social-post-text .hook { font-weight: 700; font-size: 16px; }
+.social-post-text .red { color: #FF3B2F; }
+.social-post-text .amber { color: #E8A020; }
+.social-post-img { height: 180px; background: var(--coal); display: flex; align-items: center; justify-content: center; }
+.social-post-img svg { width: 90px; height: 90px; }
+.social-post-reactions { background: #242526; padding: 10px 16px; display: flex; justify-content: space-between; font-size: 12px; color: #6A6A6A; border-top: 1px solid #3A3B3C; }
+.social-post-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid #3A3B3C; }
+.social-action-btn { padding: 10px; text-align: center; font-size: 13px; color: #8A8A8A; border-right: 1px solid #3A3B3C; cursor: none; transition: background 0.2s, color 0.2s; }
+.social-action-btn:last-child { border-right: none; }
+.social-action-btn:hover { background: #2E2F30; color: #E3E3E3; }
+
+/* ═══════════════════════════════════════
+   NEWSLETTER
+═══════════════════════════════════════ */
+.newsletter { background: var(--coal); padding: 80px 40px; border-top: 1px solid var(--ash); }
+.newsletter-inner { max-width: 600px; margin: 0 auto; text-align: center; }
+.newsletter .section-label { justify-content: center; margin-bottom: 16px; }
+.newsletter .section-label::after { display: none; }
+.newsletter-title { font-family: var(--font-display); font-size: clamp(32px, 5vw, 52px); line-height: 1; margin-bottom: 16px; }
+.newsletter-title span { color: var(--red); }
+.newsletter-desc { font-style: italic; color: var(--smoke); margin-bottom: 32px; font-size: 17px; }
+.newsletter-form { display: flex; gap: 0; max-width: 460px; margin: 0 auto; }
+.newsletter-input { flex: 1; background: var(--ink); border: 1px solid var(--ash); border-right: none; color: var(--bone); font-family: var(--font-body); font-size: 16px; padding: 14px 20px; outline: none; transition: border-color 0.2s; }
+.newsletter-input::placeholder { color: var(--smoke); }
+.newsletter-input:focus { border-color: var(--red); }
+.newsletter-submit { background: var(--red); color: white; border: 1px solid var(--red); font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 14px 24px; cursor: none; transition: background 0.2s; white-space: nowrap; }
+.newsletter-submit:hover { background: var(--red-hot); }
+.newsletter-note { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: var(--smoke); margin-top: 12px; }
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer { background: var(--ink); border-top: 1px solid var(--ash); padding: 48px 40px 32px; }
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--ash); margin-bottom: 32px; }
+.footer-brand-name { font-family: var(--font-display); font-size: 32px; letter-spacing: 3px; color: var(--bone); margin-bottom: 4px; }
+.footer-brand-name span { color: var(--red); }
+.footer-brand-tagline { font-style: italic; color: var(--smoke); font-size: 14px; margin-bottom: 20px; }
+.footer-social { display: flex; gap: 10px; }
+.footer-social-btn { width: 36px; height: 36px; border: 1px solid var(--ash); display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.footer-social-btn:hover { border-color: var(--red); background: rgba(217,43,43,0.1); }
+.footer-social-btn svg { width: 16px; height: 16px; fill: var(--smoke); }
+.footer-social-btn:hover svg { fill: var(--bone); }
+.footer-col-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 16px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a { font-size: 14px; color: var(--smoke); transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
+.footer-links a::before { content: '—'; font-size: 10px; opacity: 0.4; }
+.footer-links a:hover { color: var(--bone); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; }
+.footer-copy { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--smoke); }
+.footer-copy span { color: var(--red); }
+
+/* ═══════════════════════════════════════
+   SANITY STATUS INDICATOR
+═══════════════════════════════════════ */
+.sanity-status {
+  position: fixed; bottom: 24px; right: 24px; z-index: 500;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--ink); border: 1px solid var(--ash);
+  padding: 8px 14px; font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--smoke); opacity: 0; transition: opacity 0.3s;
+}
+.sanity-status.visible { opacity: 1; }
+.sanity-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--smoke); }
+.sanity-dot.connected { background: #4CAF50; animation: pulse 2s infinite; }
+.sanity-dot.loading { background: var(--amber); animation: pulse 1s infinite; }
+.sanity-dot.error { background: var(--red); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ═══════════════════════════════════════
+   REVEAL ANIMATIONS
+═══════════════════════════════════════ */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero, .hero-pro { padding: 120px 20px 60px; }
+  .featured, .blog-section, .social-section, .newsletter, footer, .pro-reports, .pro-features, .pro-pricing { padding-left: 20px; padding-right: 20px; }
+  .featured-grid, .social-inner, .footer-top { grid-template-columns: 1fr; }
+  .blog-grid, .pro-reports-grid, .pro-features-grid { grid-template-columns: 1fr; }
+  .counter-inner { grid-template-columns: repeat(2,1fr); }
+  body { cursor: auto; }
+  .cursor { display: none; }
+  .hero-pro-metrics { flex-wrap: wrap; gap: 24px; }
+  .layer-toggle { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- Sanity connection indicator -->
+<div class="sanity-status" id="sanityStatus">
+  <div class="sanity-dot" id="sanityDot"></div>
+  <span id="sanityLabel">Sanity CMS</span>
+</div>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <!-- ↓ LOGO SVG — nahraď vlastným logom -->
+      <svg viewBox="0 0 44 60" fill="none">
+        <defs>
+          <linearGradient id="xg" x1="0" y1="0" x2="44" y2="60" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FF3B2F"/><stop offset="1" stop-color="#8C0F0F"/>
+          </linearGradient>
+        </defs>
+        <path d="M22 4C13 4 6 11 6 20C6 26 9 30.5 13 34C14.5 35.5 15.5 38 15.5 40H28.5C28.5 38 29.5 35.5 31 34C35 30.5 38 26 38 20C38 11 31 4 22 4Z" fill="#1C1C1E" stroke="#2E2E2E" stroke-width="1"/>
+        <rect x="15.5" y="40" width="13" height="4" rx="1" fill="#2A2A2A"/>
+        <rect x="16.5" y="44" width="11" height="3.5" rx="1" fill="#252525"/>
+        <rect x="17.5" y="47.5" width="9" height="3" rx="1" fill="#2A2A2A"/>
+        <line x1="4" y1="3" x2="40" y2="55" stroke="url(#xg)" stroke-width="7" stroke-linecap="round"/>
+        <line x1="40" y1="3" x2="4" y2="55" stroke="url(#xg)" stroke-width="7" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <!-- ↓ NÁZOV STRÁNKY — zmeň text -->
+    <span class="nav-brand">NÁZOV <span>WEBU</span></span>
+  </a>
+
+  <div class="nav-links">
+    <!-- ↓ NAVIGAČNÉ LINKY — zmeň href a text -->
+    <a href="#analyzy" id="navAnalyzy">Sekcia 1</a>
+    <a href="#kategorie">Sekcia 2</a>
+    <a href="#premium" id="navPremium" class="premium-link">Premium ◆</a>
+    <a href="#o-nas">O nás</a>
+  </div>
+
+  <div class="nav-right">
+    <div class="layer-toggle">
+      <button class="layer-btn active-l1" id="btnL1" onclick="switchLayer(1)">L1 — Verejná</button>
+      <button class="layer-btn" id="btnL2" onclick="switchLayer(2)">L2 — Premium</button>
+    </div>
+
+    <!-- ↓ SOCIÁLNA SIEŤ — zmeň href, SVG ikonu a text -->
+    <a href="https://www.facebook.com/YOUR_PAGE" target="_blank" class="nav-social">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      <span>Sociálna sieť</span>
+    </a>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════
+     VRSTVA 1 — VEREJNÁ
+════════════════════════════════════════ -->
+<div id="layer1" class="layer-panel">
+
+  <!-- HERO L1 -->
+  <section class="hero">
+    <div class="hero-bar"></div>
+    <!-- ↓ GHOST WATERMARK TEXT — zmeň na 2 riadky (veľký nápis v pozadí) -->
+    <div class="hero-ghost">
+      <span>RIADOK</span>
+      <span>JEDEN</span>
+    </div>
+    <div class="hero-content">
+      <!-- ↓ EYEBROW — krátky popis nad titulkom -->
+      <div class="hero-eyebrow">Krátky popis webu</div>
+
+      <!-- ↓ HLAVNÝ TITULOK — 2 riadky, druhý bude červený -->
+      <h1 class="hero-headline">RIADOK<span class="line2">JEDEN</span></h1>
+
+      <!-- ↓ PODTITULOK -->
+      <p class="hero-sub">Krátky popis čo web robí<br>a čo návštevník získa.</p>
+
+      <div class="hero-actions">
+        <!-- ↓ PRIMÁRNE TLAČIDLO -->
+        <a href="#analyzy" class="btn-primary">
+          <span>Primárna akcia</span>
+          <svg viewBox="0 0 24 24" stroke="white" stroke-width="2" fill="none"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <!-- ↓ SEKUNDÁRNE TLAČIDLO -->
+        <a href="#premium" class="btn-secondary" onclick="switchLayer(2)">
+          <span>Sekundárna akcia ◆</span>
+        </a>
+      </div>
+      <div class="hero-divider"></div>
+    </div>
+  </section>
+
+  <!-- TICKER — ↓ Pridaj/uprav položky (skopíruj sekciu 2× pre nekonečný loop) -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span>POLOŽKA 1</span><span class="sep">✗</span>
+      <span>POLOŽKA 2</span><span class="sep">✗</span>
+      <span>POLOŽKA 3</span><span class="sep">✗</span>
+      <span>POLOŽKA 4</span><span class="sep">✗</span>
+      <span>POLOŽKA 5</span><span class="sep">✗</span>
+      <span>POLOŽKA 6</span><span class="sep">✗</span>
+      <span>POLOŽKA 7</span><span class="sep">✗</span>
+      <!-- Duplikát pre plynulý loop -->
+      <span>POLOŽKA 1</span><span class="sep">✗</span>
+      <span>POLOŽKA 2</span><span class="sep">✗</span>
+      <span>POLOŽKA 3</span><span class="sep">✗</span>
+      <span>POLOŽKA 4</span><span class="sep">✗</span>
+      <span>POLOŽKA 5</span><span class="sep">✗</span>
+      <span>POLOŽKA 6</span><span class="sep">✗</span>
+      <span>POLOŽKA 7</span><span class="sep">✗</span>
+    </div>
+  </div>
+
+  <!-- FEATURED POSTS -->
+  <section class="featured" id="analyzy">
+    <!-- ↓ SECTION LABEL — číslo a popis sekcie -->
+    <div class="section-label">01 — Popis sekcie</div>
+    <h2 class="section-title reveal">NADPIS<br><span style="color:var(--red)">SEKCIE</span></h2>
+
+    <div class="featured-grid reveal" id="featuredGrid">
+
+      <!-- ↓ HLAVNÁ FEATURED KARTA — nahraď href odkazom na článok -->
+      <a href="#" class="featured-main">
+        <div class="featured-main-img">
+          <div class="post-visual-bg"></div>
+          <div class="post-visual">
+            <!-- ↓ LOGO SVG vo featured karte — nahraď alebo použi <img> tag -->
+            <svg viewBox="0 0 100 120" fill="none">
+              <defs><linearGradient id="fg1" x1="0" y1="0" x2="100" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3B2F"/><stop offset="1" stop-color="#8C0F0F"/></linearGradient></defs>
+              <path d="M50 8C32 8 18 22 18 40C18 52 24 61 32 68C35 71 37 77 37 81H63C63 77 65 71 68 68C76 61 82 52 82 40C82 22 68 8 50 8Z" fill="#1C1C1E" stroke="#2E2E2E" stroke-width="1.5"/>
+              <rect x="37" y="81" width="26" height="6" rx="1" fill="#2A2A2A"/>
+              <rect x="38.5" y="87" width="23" height="5" rx="1" fill="#252525"/>
+              <rect x="40" y="92" width="20" height="5" rx="1" fill="#2A2A2A"/>
+              <line x1="8" y1="5" x2="92" y2="112" stroke="url(#fg1)" stroke-width="12" stroke-linecap="round"/>
+              <line x1="92" y1="5" x2="8" y2="112" stroke="url(#fg1)" stroke-width="12" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="featured-main-body">
+          <!-- ↓ OBSAH HLAVNEJ KARTY -->
+          <div class="post-category">Kategória príspevku</div>
+          <h3 class="post-title">Nadpis hlavného príspevku — čo je témou tohto článku</h3>
+          <p class="post-excerpt">Krátky popis článku v 2–3 vetách. Čo čitateľ zistí? Prečo by mal kliknúť? Čo je prekvapivé alebo dôležité na tejto téme?</p>
+          <div class="post-meta">
+            <!-- ↓ DÁTUM — formát: D. mmm YYYY -->
+            <span class="post-date">1. jan 2025</span>
+            <!-- ↓ BADGE — hodnota 1–10: low=zelená, mid=žltá, high=červená -->
+            <div class="post-score">Riziko: <span class="score-badge low">0/10</span></div>
+          </div>
+          <span class="read-more">Čítať analýzu</span>
+        </div>
+      </a>
+
+      <!-- ↓ POSTRANNÉ KARTY (3 menšie) -->
+      <div class="featured-side">
+
+        <!-- Postranná karta 1 -->
+        <a href="#" class="featured-side-card">
+          <div class="side-card-cat">Kategória</div>
+          <h3 class="side-card-title">Nadpis druhého príspevku v postrannom stĺpci</h3>
+          <p class="side-card-excerpt">Krátky perex v jednej dvoch vetách.</p>
+          <div class="side-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge high">0/10</span>
+          </div>
+        </a>
+
+        <!-- Postranná karta 2 -->
+        <a href="#" class="featured-side-card">
+          <div class="side-card-cat">Kategória</div>
+          <h3 class="side-card-title">Nadpis tretieho príspevku v postrannom stĺpci</h3>
+          <p class="side-card-excerpt">Krátky perex v jednej dvoch vetách.</p>
+          <div class="side-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge high">0/10</span>
+          </div>
+        </a>
+
+        <!-- Postranná karta 3 -->
+        <a href="#" class="featured-side-card">
+          <div class="side-card-cat">Kategória</div>
+          <h3 class="side-card-title">Nadpis štvrtého príspevku v postrannom stĺpci</h3>
+          <p class="side-card-excerpt">Krátky perex v jednej dvoch vetách.</p>
+          <div class="side-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge mid">0/10</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- COUNTER STRIP — ↓ Nastav data-target číslo a popis pre každý counter -->
+  <div class="counter-strip">
+    <div class="counter-inner">
+      <div class="counter-item reveal">
+        <div class="counter-num" data-target="0">0</div>
+        <div class="counter-label">Popis čísla 1</div>
+      </div>
+      <div class="counter-item reveal reveal-delay-1">
+        <div class="counter-num" data-target="0">0</div>
+        <div class="counter-label">Popis čísla 2</div>
+      </div>
+      <div class="counter-item reveal reveal-delay-2">
+        <div class="counter-num" data-target="0">0</div>
+        <div class="counter-label">Popis čísla 3</div>
+      </div>
+      <div class="counter-item reveal reveal-delay-3">
+        <div class="counter-num" data-target="0">0</div>
+        <div class="counter-label">Popis čísla 4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOG GRID -->
+  <section class="blog-section" id="kategorie">
+    <div class="section-label">02 — Popis sekcie</div>
+    <h2 class="section-title reveal">NADPIS<br><span style="color:var(--red)">SEKCIE</span></h2>
+
+    <!-- ↓ FILTER TLAČIDLÁ — zmeň data-cat hodnoty a text -->
+    <div class="blog-filter reveal">
+      <button class="filter-btn active" data-cat="all">Všetko</button>
+      <button class="filter-btn" data-cat="kategoria1">Kategória 1</button>
+      <button class="filter-btn" data-cat="kategoria2">Kategória 2</button>
+      <button class="filter-btn" data-cat="kategoria3">Kategória 3</button>
+      <button class="filter-btn" data-cat="kategoria4">Kategória 4</button>
+    </div>
+
+    <!-- ↓ BLOG GRID — pridaj/uprav karty, data-category musí zodpovedať filter-btn data-cat -->
+    <div class="blog-grid" id="blogGrid">
+
+      <a href="#" class="blog-card reveal" data-category="kategoria1">
+        <div class="blog-card-visual cat-biznis"><div class="visual-icon">📌</div></div>
+        <div class="blog-card-body">
+          <div class="blog-card-cat">Kategória 1</div>
+          <h3 class="blog-card-title">Nadpis článku číslo jedna</h3>
+          <p class="blog-card-excerpt">Perex článku — krátky popis v 2–3 vetách ktorý zaujme čitateľa a vysvetlí o čom článok je.</p>
+          <div class="blog-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge high">0/10</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="blog-card reveal reveal-delay-1" data-category="kategoria2">
+        <div class="blog-card-visual cat-financie"><div class="visual-icon">📌</div></div>
+        <div class="blog-card-body">
+          <div class="blog-card-cat">Kategória 2</div>
+          <h3 class="blog-card-title">Nadpis článku číslo dva</h3>
+          <p class="blog-card-excerpt">Perex článku — krátky popis v 2–3 vetách ktorý zaujme čitateľa a vysvetlí o čom článok je.</p>
+          <div class="blog-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge mid">0/10</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="blog-card reveal reveal-delay-2" data-category="kategoria3">
+        <div class="blog-card-visual cat-zahrada"><div class="visual-icon">📌</div></div>
+        <div class="blog-card-body">
+          <div class="blog-card-cat">Kategória 3</div>
+          <h3 class="blog-card-title">Nadpis článku číslo tri</h3>
+          <p class="blog-card-excerpt">Perex článku — krátky popis v 2–3 vetách ktorý zaujme čitateľa a vysvetlí o čom článok je.</p>
+          <div class="blog-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge low">0/10</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="blog-card reveal" data-category="kategoria1">
+        <div class="blog-card-visual cat-domov"><div class="visual-icon">📌</div></div>
+        <div class="blog-card-body">
+          <div class="blog-card-cat">Kategória 1</div>
+          <h3 class="blog-card-title">Nadpis článku číslo štyri</h3>
+          <p class="blog-card-excerpt">Perex článku — krátky popis v 2–3 vetách ktorý zaujme čitateľa a vysvetlí o čom článok je.</p>
+          <div class="blog-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge mid">0/10</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="blog-card reveal reveal-delay-1" data-category="kategoria2">
+        <div class="blog-card-visual cat-biznis"><div class="visual-icon">📌</div></div>
+        <div class="blog-card-body">
+          <div class="blog-card-cat">Kategória 2</div>
+          <h3 class="blog-card-title">Nadpis článku číslo päť</h3>
+          <p class="blog-card-excerpt">Perex článku — krátky popis v 2–3 vetách ktorý zaujme čitateľa a vysvetlí o čom článok je.</p>
+          <div class="blog-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge high">0/10</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="blog-card reveal reveal-delay-2" data-category="kategoria4">
+        <div class="blog-card-visual cat-financie"><div class="visual-icon">📌</div></div>
+        <div class="blog-card-body">
+          <div class="blog-card-cat">Kategória 4</div>
+          <h3 class="blog-card-title">Nadpis článku číslo šesť</h3>
+          <p class="blog-card-excerpt">Perex článku — krátky popis v 2–3 vetách ktorý zaujme čitateľa a vysvetlí o čom článok je.</p>
+          <div class="blog-card-footer">
+            <span class="post-date">1. jan 2025</span>
+            <span class="score-badge low">0/10</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- SOCIAL CTA SECTION -->
+  <section class="social-section">
+    <div class="social-inner">
+      <div class="reveal">
+        <div class="section-label">03 — Sociálne siete</div>
+        <!-- ↓ NADPIS — 2 riadky, druhý červený -->
+        <h2 class="social-headline">SLEDUJ NÁS<span>NA SIETI</span></h2>
+        <p class="social-desc">Krátky popis prečo by mal návštevník sledovať profil. Čo získa? Aká je frekvencia príspevkov?</p>
+
+        <!-- ↓ ŠTATISTIKY — zmeň čísla a popisky -->
+        <div class="social-stats">
+          <div><div class="social-stat-num">3×</div><div class="social-stat-label">Príspevky týždenne</div></div>
+          <div><div class="social-stat-num">100%</div><div class="social-stat-label">Originálny obsah</div></div>
+          <div><div class="social-stat-num">0</div><div class="social-stat-label">Zbytočných reklám</div></div>
+        </div>
+
+        <!-- ↓ TLAČIDLO — zmeň href a text -->
+        <a href="https://www.facebook.com/YOUR_PAGE" target="_blank" class="btn-social">
+          <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          <span>Sledovať stránku</span>
+        </a>
+      </div>
+
+      <!-- ↓ MOCKUP PRÍSPEVKU — nahraď vlastným ukážkovým postom -->
+      <div class="social-post-mock reveal reveal-delay-1">
+        <div class="social-post-header">
+          <div class="social-avatar">
+            <!-- ↓ Miniatura loga v avatare -->
+            <svg width="22" height="28" viewBox="0 0 44 58" fill="none">
+              <defs><linearGradient id="avg" x1="0" y1="0" x2="44" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3B2F"/><stop offset="1" stop-color="#8C0F0F"/></linearGradient></defs>
+              <path d="M22 3C13 3 6 10 6 19C6 25 9 29 13 32.5C14.5 34 15.5 36.5 15.5 38.5H28.5C28.5 36.5 29.5 34 31 32.5C35 29 38 25 38 19C38 10 31 3 22 3Z" fill="#1C1C1E" stroke="#2E2E2E" stroke-width="1"/>
+              <rect x="15.5" y="38.5" width="13" height="4" rx="1" fill="#2A2A2A"/>
+              <line x1="4" y1="2" x2="40" y2="54" stroke="url(#avg)" stroke-width="6.5" stroke-linecap="round"/>
+              <line x1="40" y1="2" x2="4" y2="54" stroke="url(#avg)" stroke-width="6.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <!-- ↓ Meno stránky a čas -->
+          <div>
+            <div class="social-post-name">Názov stránky</div>
+            <div class="social-post-time">Práve teraz</div>
+          </div>
+        </div>
+        <div class="social-post-content">
+          <div class="social-post-text">
+            <!-- ↓ OBSAH MOCKUP PRÍSPEVKU -->
+            <div class="hook">Ukážkový nadpis príspevku.</div>
+            Prvý riadok textu príspevku.<br>
+            <span class="red">Dôležitá informácia červenou.</span><br>
+            <span class="amber">Doplňujúca informácia oranžovou →</span>
+          </div>
+        </div>
+        <div class="social-post-img">
+          <!-- ↓ Nahraď obrázkom alebo vlastným SVG -->
+          <svg viewBox="0 0 100 120" fill="none">
+            <defs><linearGradient id="pfg" x1="0" y1="0" x2="100" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3B2F"/><stop offset="1" stop-color="#8C0F0F"/></linearGradient></defs>
+            <path d="M50 8C32 8 18 22 18 40C18 52 24 61 32 68C35 71 37 77 37 81H63C63 77 65 71 68 68C76 61 82 52 82 40C82 22 68 8 50 8Z" fill="#1C1C1E" stroke="#2E2E2E" stroke-width="1.5"/>
+            <rect x="37" y="81" width="26" height="5" rx="1" fill="#2A2A2A"/>
+            <line x1="8" y1="5" x2="92" y2="112" stroke="url(#pfg)" stroke-width="12" stroke-linecap="round"/>
+            <line x1="92" y1="5" x2="8" y2="112" stroke="url(#pfg)" stroke-width="12" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <!-- ↓ Zmeň čísla reakcií -->
+        <div class="social-post-reactions">
+          <span>❤️😂👍 0</span>
+          <span>0 komentárov · 0 zdielaní</span>
+        </div>
+        <div class="social-post-actions">
+          <div class="social-action-btn">👍 Páči sa mi</div>
+          <div class="social-action-btn">💬 Komentovať</div>
+          <div class="social-action-btn">↗ Zdielať</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter">
+    <div class="newsletter-inner reveal">
+      <div class="section-label">04 — Newsletter</div>
+      <!-- ↓ NADPIS NEWSLETTRA — druhý riadok červený -->
+      <h2 class="newsletter-title">NADPIS<br><span>NEWSLETTRA</span></h2>
+      <p class="newsletter-desc">Krátky popis čo subscriber dostane. Žiadny spam. Len hodnotný obsah.</p>
+      <div class="newsletter-form">
+        <input type="email" class="newsletter-input" placeholder="tvoj@email.sk">
+        <button class="newsletter-submit">Prihlásiť sa</button>
+      </div>
+      <p class="newsletter-note">Odhlásenie jedným klikom. Žiadne ďalšie emaily.</p>
+    </div>
+  </section>
+
+</div><!-- /layer1 -->
+
+
+<!-- ════════════════════════════════════════
+     VRSTVA 2 — PREMIUM
+════════════════════════════════════════ -->
+<div id="layer2" class="layer-panel hidden">
+
+  <!-- HERO PRO -->
+  <section class="hero-pro">
+    <div class="hero-pro-bar"></div>
+    <div class="hero-pro-grid"></div>
+    <!-- ↓ PREMIUM WATERMARK TEXT -->
+    <div class="hero-pro-watermark">PREMIUM</div>
+    <div class="hero-pro-content">
+      <!-- ↓ BADGE nad titulkom -->
+      <div class="hero-pro-badge">Premium analytická vrstva</div>
+      <!-- ↓ TITULOK + ITALIC PODTITULOK -->
+      <h1 class="hero-pro-headline">
+        Nadpis<br><em>premium sekcie.</em>
+      </h1>
+      <p class="hero-pro-sub">Popis čo premium ponúka. Čo je rozdiel oproti voľnej vrstve? Aká je hodnota pre platiacich používateľov?</p>
+      <div class="hero-pro-actions">
+        <a href="#pro-reports" class="btn-pro-primary">
+          <span>Zobraziť reporty</span>
+          <svg viewBox="0 0 24 24" stroke="#0B1829" stroke-width="2" fill="none" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="btn-pro-secondary" onclick="switchLayer(1)">← Späť na verejnú verziu</a>
+      </div>
+      <!-- ↓ METRIKY — zmeň čísla a popisky -->
+      <div class="hero-pro-metrics">
+        <div><div class="pro-metric-num">0</div><div class="pro-metric-label">Metrika 1</div></div>
+        <div><div class="pro-metric-num">0</div><div class="pro-metric-label">Metrika 2</div></div>
+        <div><div class="pro-metric-num">0</div><div class="pro-metric-label">Metrika 3</div></div>
+        <div><div class="pro-metric-num">PDF</div><div class="pro-metric-label">Metrika 4</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRO SECTION -->
+  <div class="pro-section">
+    <div class="pro-section-bar"></div>
+
+    <!-- AUTH GATE -->
+    <div id="proGate" class="pro-gate">
+      <div class="pro-gate-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.4 0 2.8 1.1 2.8 2.5V11h1.4c.8 0 1.4.6 1.4 1.4v4.2c0 .8-.6 1.4-1.4 1.4H7.8c-.8 0-1.4-.6-1.4-1.4V12.4c0-.8.6-1.4 1.4-1.4h1.4V9.5C9.2 8.1 10.6 7 12 7zm0 1.5c-.8 0-1.4.6-1.4 1.4V11h2.8V9.9c0-.8-.6-1.4-1.4-1.4z"/></svg>
+      </div>
+      <!-- ↓ LOGIN GATE TEXTY -->
+      <h2 class="pro-gate-title">Premium prístup</h2>
+      <p class="pro-gate-desc">Prihláste sa pre prístup k plným analytickým reportom, finančným projekciám a exportom do PDF.</p>
+      <div class="pro-login-form">
+        <input type="email" class="pro-input" placeholder="vas@email.sk" id="proEmail">
+        <input type="password" class="pro-input" placeholder="Heslo" id="proPassword">
+        <button class="pro-login-btn" onclick="proLogin()">Prihlásiť sa</button>
+        <div class="pro-gate-divider"><span>alebo</span></div>
+        <button class="pro-login-btn" style="background: var(--pro-slate); color: var(--pro-gold); border: 1px solid var(--pro-gold);" onclick="proDemo()">Zobraziť demo reporty</button>
+      </div>
+      <p class="pro-trial-note">Prvých <span>7 dní zadarmo</span>. Bez záväzkov.</p>
+    </div>
+
+    <!-- REPORTS (zobrazí sa po prihlásení / demo) -->
+    <div id="proReports" class="pro-reports" style="display:none;">
+      <div class="section-label pro">01 — Analytické reporty</div>
+      <h2 class="section-title-pro reveal">Všetky <em>reporty</em></h2>
+
+      <div class="pro-reports-grid" id="proReportsGrid">
+
+        <!-- ↓ REPORT KARTA 1 — skopíruj blok pre každý ďalší report -->
+        <a href="#" class="pro-report-card reveal">
+          <div class="pro-report-header">
+            <span class="pro-report-num">REPORT #0001</span>
+            <div class="pro-report-score-wrap">
+              <span class="pro-report-score-label">Riziko</span>
+              <!-- ↓ Skóre rizika: napr. 3/10 alebo 8/10 -->
+              <span class="pro-report-score-val">0/10</span>
+            </div>
+          </div>
+          <div class="pro-report-body">
+            <div class="pro-report-cat">Kategória reportu</div>
+            <h3 class="pro-report-title">Nadpis prvého premium reportu: podnadpis a kontext</h3>
+            <!-- ↓ DÁTOVÉ BARY — label, šírka (%), farba (risk=červená) -->
+            <div class="pro-data-bars">
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Metrika 1</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill" style="width:50%"></div></div>
+                <span class="pro-bar-val">50%</span>
+              </div>
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Metrika 2</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill" style="width:70%"></div></div>
+                <span class="pro-bar-val">70%</span>
+              </div>
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Riziko</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill risk" style="width:30%"></div></div>
+                <span class="pro-bar-val" style="color:var(--red)">3/10</span>
+              </div>
+            </div>
+            <div class="pro-report-footer">
+              <span class="pro-report-date">1. jan 2025</span>
+              <span class="pro-report-link">Otvoriť report</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- ↓ REPORT KARTA 2 -->
+        <a href="#" class="pro-report-card reveal reveal-delay-1">
+          <div class="pro-report-header">
+            <span class="pro-report-num">REPORT #0002</span>
+            <div class="pro-report-score-wrap">
+              <span class="pro-report-score-label">Riziko</span>
+              <span class="pro-report-score-val">0/10</span>
+            </div>
+          </div>
+          <div class="pro-report-body">
+            <div class="pro-report-cat">Kategória reportu</div>
+            <h3 class="pro-report-title">Nadpis druhého premium reportu: podnadpis a kontext</h3>
+            <div class="pro-data-bars">
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Metrika 1</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill" style="width:40%"></div></div>
+                <span class="pro-bar-val">40%</span>
+              </div>
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Metrika 2</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill" style="width:60%"></div></div>
+                <span class="pro-bar-val">60%</span>
+              </div>
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Riziko</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill risk" style="width:80%"></div></div>
+                <span class="pro-bar-val" style="color:var(--red)">8/10</span>
+              </div>
+            </div>
+            <div class="pro-report-footer">
+              <span class="pro-report-date">1. jan 2025</span>
+              <span class="pro-report-link">Otvoriť report</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- ↓ REPORT KARTA 3 -->
+        <a href="#" class="pro-report-card reveal reveal-delay-2">
+          <div class="pro-report-header">
+            <span class="pro-report-num">REPORT #0003</span>
+            <div class="pro-report-score-wrap">
+              <span class="pro-report-score-label">Riziko</span>
+              <span class="pro-report-score-val">0/10</span>
+            </div>
+          </div>
+          <div class="pro-report-body">
+            <div class="pro-report-cat">Kategória reportu</div>
+            <h3 class="pro-report-title">Nadpis tretieho premium reportu: podnadpis a kontext</h3>
+            <div class="pro-data-bars">
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Metrika 1</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill risk" style="width:80%"></div></div>
+                <span class="pro-bar-val" style="color:var(--red)">80%</span>
+              </div>
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Metrika 2</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill" style="width:15%"></div></div>
+                <span class="pro-bar-val">15%</span>
+              </div>
+              <div class="pro-bar-row">
+                <span class="pro-bar-label">Riziko</span>
+                <div class="pro-bar-track"><div class="pro-bar-fill risk" style="width:90%"></div></div>
+                <span class="pro-bar-val" style="color:var(--red)">9/10</span>
+              </div>
+            </div>
+            <div class="pro-report-footer">
+              <span class="pro-report-date">1. jan 2025</span>
+              <span class="pro-report-link">Otvoriť report</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div><!-- /proReports -->
+
+    <!-- PREMIUM FEATURES — ↓ Zmeň ikony, nadpisy a popisy -->
+    <div class="pro-features" id="pro-reports">
+      <div class="section-label pro">02 — Čo zahŕňa premium</div>
+      <h2 class="section-title-pro reveal">Obsah <em>každého reportu</em></h2>
+      <div class="pro-features-grid reveal">
+        <div class="pro-feature-card">
+          <span class="pro-feature-icon">◈</span>
+          <div class="pro-feature-name">FEATURE 1</div>
+          <p class="pro-feature-desc">Popis prvej funkcie premium. Čo konkrétne dostane platený používateľ?</p>
+        </div>
+        <div class="pro-feature-card">
+          <span class="pro-feature-icon">◉</span>
+          <div class="pro-feature-name">FEATURE 2</div>
+          <p class="pro-feature-desc">Popis druhej funkcie premium. Čo konkrétne dostane platený používateľ?</p>
+        </div>
+        <div class="pro-feature-card">
+          <span class="pro-feature-icon">◇</span>
+          <div class="pro-feature-name">FEATURE 3</div>
+          <p class="pro-feature-desc">Popis tretej funkcie premium. Čo konkrétne dostane platený používateľ?</p>
+        </div>
+        <div class="pro-feature-card">
+          <span class="pro-feature-icon">▣</span>
+          <div class="pro-feature-name">FEATURE 4</div>
+          <p class="pro-feature-desc">Popis štvrtej funkcie premium. Čo konkrétne dostane platený používateľ?</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING — ↓ Zmeň cenu, periódu a zoznam funkcií -->
+    <div class="pro-pricing">
+      <div class="section-label pro" style="justify-content:center; margin-bottom: 32px;">03 — Cenník</div>
+      <div class="pro-price-box">
+        <span class="pro-price-badge">Najobľúbenejší plán</span>
+        <!-- ↓ CENA -->
+        <div class="pro-price-amount">0€</div>
+        <div class="pro-price-period">/ mesiac · bez záväzkov</div>
+        <div class="pro-price-divider"></div>
+        <!-- ↓ ZOZNAM ZAHRNUTÝCH POLOŽIEK -->
+        <ul class="pro-price-features">
+          <li>Položka 1 — čo je zahrnuté</li>
+          <li>Položka 2 — čo je zahrnuté</li>
+          <li>Položka 3 — čo je zahrnuté</li>
+          <li>Položka 4 — čo je zahrnuté</li>
+          <li>Položka 5 — čo je zahrnuté</li>
+          <li>Položka 6 — čo je zahrnuté</li>
+        </ul>
+        <button class="pro-login-btn" style="width:100%; padding:18px;" onclick="proDemo()">Začať zadarmo — 7 dní trial</button>
+        <p class="pro-trial-note" style="margin-top:16px;">Bez kreditnej karty. Zrušenie kedykoľvek.</p>
+      </div>
+    </div>
+
+  </div><!-- /pro-section -->
+
+</div><!-- /layer2 -->
+
+
+<!-- ═══ SHARED FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <!-- ↓ ZNAČKA V PÄTIČKE -->
+        <div class="footer-brand-name">NÁZOV <span>WEBU</span></div>
+        <div class="footer-brand-tagline">Krátky tagline. Bez cukrovania.</div>
+        <div class="footer-social">
+          <!-- ↓ SOCIÁLNE IKONY v pätičke -->
+          <a href="https://www.facebook.com/YOUR_PAGE" target="_blank" class="footer-social-btn">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- ↓ FOOTER STĹPCE — Obsah -->
+      <div>
+        <div class="footer-col-title">Obsah</div>
+        <ul class="footer-links">
+          <li><a href="#">Odkaz 1</a></li>
+          <li><a href="#">Odkaz 2</a></li>
+          <li><a href="#">Odkaz 3</a></li>
+          <li><a href="#">Odkaz 4</a></li>
+          <li><a href="#">Odkaz 5</a></li>
+        </ul>
+      </div>
+
+      <!-- ↓ FOOTER STĹPCE — Stránky -->
+      <div>
+        <div class="footer-col-title">Stránky</div>
+        <ul class="footer-links">
+          <li><a href="#" id="o-nas">O nás</a></li>
+          <li><a href="#" onclick="switchLayer(2)">Premium ◆</a></li>
+          <li><a href="#">Odkaz 3</a></li>
+          <li><a href="#">Kontakt</a></li>
+        </ul>
+      </div>
+
+      <!-- ↓ FOOTER STĹPEC — CMS / Misc -->
+      <div>
+        <div class="footer-col-title">Sanity CMS</div>
+        <ul class="footer-links">
+          <li><a href="https://sanity.io" target="_blank">Admin Studio</a></li>
+          <li><a href="#">API dokumentácia</a></li>
+          <li><a href="#">Schema príručka</a></li>
+        </ul>
+        <div style="margin-top:20px; padding:16px; background:var(--coal); border:1px solid var(--ash);">
+          <!-- ↓ CTA box v pätičke -->
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;">Máš nápad?</div>
+          <div style="font-size:13px;color:var(--smoke);line-height:1.5;">Pošli nám ho. Analyzujeme ho zadarmo.</div>
+          <a href="#" style="display:inline-block;margin-top:10px;font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);border-bottom:1px solid var(--red);">Odoslať →</a>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      <!-- ↓ COPYRIGHT — zmeň rok a názov -->
+      <div class="footer-copy">© 2025 <span>Názov webu</span> · Všetky práva vyhradené</div>
+      <div class="footer-copy">Powered by <span>Sanity CMS</span></div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+/* ═══════════════════════════════════════
+   SANITY CONFIG
+   ↓ Vyplňte pred nasadením:
+   - projectId: z sanity.io/manage
+   - dataset:   zvyčajne 'production'
+═══════════════════════════════════════ */
+const SANITY_CONFIG = {
+  projectId: 'YOUR_PROJECT_ID',
+  dataset:   'production',
+  apiVersion: '2025-01-01',
+};
+
+const SANITY_URL = (query, params = {}) => {
+  const base = `https://${SANITY_CONFIG.projectId}.api.sanity.io/v${SANITY_CONFIG.apiVersion}/data/query/${SANITY_CONFIG.dataset}`;
+  const q = encodeURIComponent(query);
+  const p = encodeURIComponent(JSON.stringify(params));
+  return `${base}?query=${q}&params=${p}`;
+};
+
+/* ═══════════════════════════════════════
+   SANITY QUERIES (GROQ)
+   ↓ Uprav podľa vlastnej Sanity schémy
+═══════════════════════════════════════ */
+const QUERIES = {
+  publicPosts: `*[_type == "post" && layer == "public"] | order(publishedAt desc) {
+    _id, title, excerpt, category, riskScore, publishedAt, slug, layer
+  }`,
+  featuredPosts: `*[_type == "post" && layer == "public" && featured == true] | order(publishedAt desc)[0..3] {
+    _id, title, excerpt, category, riskScore, publishedAt, slug
+  }`,
+  premiumReports: `*[_type == "report" && layer == "premium"] | order(publishedAt desc) {
+    _id, reportNumber, title, category, riskScore, publishedAt, slug, layer,
+    financialData { roi5yr, survivalRate, capitalRequired },
+    dataPoints[] { label, value, type }
+  }`,
+  byCategory: `*[_type == "post" && category == $cat && layer == "public"] | order(publishedAt desc) {
+    _id, title, excerpt, category, riskScore, publishedAt, slug
+  }`
+};
+
+/* ═══════════════════════════════════════
+   SANITY DATA FETCHER
+═══════════════════════════════════════ */
+async function fetchFromSanity(query, params = {}) {
+  const statusDot   = document.getElementById('sanityDot');
+  const statusLabel = document.getElementById('sanityLabel');
+  const statusEl    = document.getElementById('sanityStatus');
+
+  statusEl.classList.add('visible');
+  statusDot.className = 'sanity-dot loading';
+  statusLabel.textContent = 'Načítavam...';
+
+  try {
+    const res = await fetch(SANITY_URL(query, params), {
+      headers: SANITY_CONFIG.token ? { Authorization: `Bearer ${SANITY_CONFIG.token}` } : {}
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    statusDot.className = 'sanity-dot connected';
+    statusLabel.textContent = 'Sanity · Pripojené';
+    setTimeout(() => statusEl.classList.remove('visible'), 3000);
+    return data.result || [];
+  } catch (err) {
+    console.warn('Sanity nedostupné, používam fallback dáta:', err.message);
+    statusDot.className = 'sanity-dot error';
+    statusLabel.textContent = 'Sanity · Offline (fallback)';
+    setTimeout(() => statusEl.classList.remove('visible'), 4000);
+    return null;
+  }
+}
+
+/* ═══════════════════════════════════════
+   RENDER HELPERS
+═══════════════════════════════════════ */
+function scoreClass(score) {
+  if (score <= 3) return 'low';
+  if (score <= 6) return 'mid';
+  return 'high';
+}
+
+/* ↓ Uprav kategórie podľa vlastnej Sanity schémy */
+const CATEGORY_META = {
+  kategoria1: { class: 'cat-biznis',   icon: '📌', label: 'Kategória 1' },
+  kategoria2: { class: 'cat-financie', icon: '📌', label: 'Kategória 2' },
+  kategoria3: { class: 'cat-zahrada',  icon: '📌', label: 'Kategória 3' },
+  kategoria4: { class: 'cat-domov',    icon: '📌', label: 'Kategória 4' },
+};
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('sk-SK', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+/* ═══════════════════════════════════════
+   RENDER — PUBLIC BLOG GRID (L1)
+═══════════════════════════════════════ */
+function renderBlogGrid(posts) {
+  const grid = document.getElementById('blogGrid');
+  if (!posts || posts.length === 0) return;
+  const delays = ['', 'reveal-delay-1', 'reveal-delay-2'];
+  grid.innerHTML = posts.map((post, i) => {
+    const meta = CATEGORY_META[post.category] || CATEGORY_META['kategoria1'];
+    const sc   = scoreClass(post.riskScore);
+    const slug = post.slug?.current || '#';
+    return `
+    <a href="/${slug}" class="blog-card reveal ${delays[i % 3]}" data-category="${post.category}">
+      <div class="blog-card-visual ${meta.class}"><div class="visual-icon">${meta.icon}</div></div>
+      <div class="blog-card-body">
+        <div class="blog-card-cat">${meta.label}</div>
+        <h3 class="blog-card-title">${post.title}</h3>
+        <p class="blog-card-excerpt">${post.excerpt || ''}</p>
+        <div class="blog-card-footer">
+          <span class="post-date">${formatDate(post.publishedAt)}</span>
+          <span class="score-badge ${sc}">${post.riskScore}/10</span>
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+  grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+}
+
+/* ═══════════════════════════════════════
+   RENDER — PREMIUM REPORTS (L2)
+═══════════════════════════════════════ */
+function renderProReports(reports) {
+  const grid = document.getElementById('proReportsGrid');
+  if (!reports || reports.length === 0) return;
+  const delays = ['', 'reveal-delay-1', 'reveal-delay-2'];
+  grid.innerHTML = reports.map((r, i) => {
+    const dp = r.dataPoints || [];
+    const barsHtml = dp.slice(0, 3).map(p => `
+      <div class="pro-bar-row">
+        <span class="pro-bar-label">${p.label}</span>
+        <div class="pro-bar-track">
+          <div class="pro-bar-fill ${p.type === 'risk' ? 'risk' : ''}" style="width:${p.value}%"></div>
+        </div>
+        <span class="pro-bar-val" style="${p.type === 'risk' ? 'color:var(--red)' : ''}">${p.displayValue || p.value + '%'}</span>
+      </div>`).join('');
+    return `
+    <a href="/premium/${r.slug?.current || '#'}" class="pro-report-card reveal ${delays[i % 3]}">
+      <div class="pro-report-header">
+        <span class="pro-report-num">REPORT #${r.reportNumber || String(i+1).padStart(4,'0')}</span>
+        <div class="pro-report-score-wrap">
+          <span class="pro-report-score-label">Riziko</span>
+          <span class="pro-report-score-val">${r.riskScore}/10</span>
+        </div>
+      </div>
+      <div class="pro-report-body">
+        <div class="pro-report-cat">${r.category || ''}</div>
+        <h3 class="pro-report-title">${r.title}</h3>
+        <div class="pro-data-bars">${barsHtml}</div>
+        <div class="pro-report-footer">
+          <span class="pro-report-date">${formatDate(r.publishedAt)}</span>
+          <span class="pro-report-link">Otvoriť report</span>
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+  grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+}
+
+/* ═══════════════════════════════════════
+   LAYER SWITCHING
+═══════════════════════════════════════ */
+let currentLayer = 1;
+
+function switchLayer(n) {
+  const l1     = document.getElementById('layer1');
+  const l2     = document.getElementById('layer2');
+  const nav    = document.getElementById('nav');
+  const btn1   = document.getElementById('btnL1');
+  const btn2   = document.getElementById('btnL2');
+  const cursor = document.getElementById('cursor');
+
+  currentLayer = n;
+
+  if (n === 1) {
+    l1.classList.remove('hidden');
+    l2.classList.add('hidden');
+    nav.classList.remove('pro-mode');
+    btn1.className = 'layer-btn active-l1';
+    btn2.className = 'layer-btn';
+    cursor.classList.remove('premium');
+  } else {
+    l1.classList.add('hidden');
+    l2.classList.remove('hidden');
+    nav.classList.add('pro-mode');
+    btn1.className = 'layer-btn';
+    btn2.className = 'layer-btn active-l2';
+    cursor.classList.add('premium');
+    loadPremiumData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+/* ═══════════════════════════════════════
+   PREMIUM AUTH
+   ↓ Nahraď vlastným auth API volaním
+═══════════════════════════════════════ */
+function proLogin() {
+  const email    = document.getElementById('proEmail').value;
+  const password = document.getElementById('proPassword').value;
+  if (!email || !email.includes('@')) {
+    document.getElementById('proEmail').style.borderColor = 'var(--red)';
+    return;
+  }
+  // TODO: fetch('/api/auth', { method: 'POST', body: JSON.stringify({ email, password }) })
+  //   .then(r => r.json()).then(d => { if(d.token) showPremiumContent(); });
+  proDemo(); // Dočasný demo fallback
+}
+
+function proDemo() { showPremiumContent(); }
+
+function showPremiumContent() {
+  document.getElementById('proGate').style.display = 'none';
+  document.getElementById('proReports').style.display = 'block';
+  loadPremiumData();
+}
+
+/* ═══════════════════════════════════════
+   DATA LOADING
+═══════════════════════════════════════ */
+async function loadPublicData() {
+  const posts = await fetchFromSanity(QUERIES.publicPosts);
+  renderBlogGrid(posts);
+}
+
+async function loadPremiumData() {
+  const gate = document.getElementById('proGate');
+  if (gate.style.display !== 'none') return;
+  const reports = await fetchFromSanity(QUERIES.premiumReports);
+  renderProReports(reports);
+}
+
+async function filterByCategory(cat) {
+  if (cat === 'all') {
+    const posts = await fetchFromSanity(QUERIES.publicPosts);
+    renderBlogGrid(posts);
+    return;
+  }
+  const posts = await fetchFromSanity(QUERIES.byCategory, { cat });
+  renderBlogGrid(posts);
+}
+
+/* ═══════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════ */
+const cursorEl = document.getElementById('cursor');
+let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+function animateCursor() {
+  curX += (mouseX - curX) * 0.15;
+  curY += (mouseY - curY) * 0.15;
+  cursorEl.style.left = curX + 'px';
+  cursorEl.style.top  = curY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => cursorEl.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => cursorEl.classList.remove('hovering'));
+});
+
+/* ═══════════════════════════════════════
+   NAV SCROLL
+═══════════════════════════════════════ */
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  navEl.classList.toggle('scrolled', window.scrollY > 80 && currentLayer === 1);
+});
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════ */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+/* ═══════════════════════════════════════
+   COUNTER ANIMATION
+═══════════════════════════════════════ */
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const target = parseInt(entry.target.dataset.target);
+      let current = 0;
+      const step = Math.max(1, Math.floor(target / 40));
+      const iv = setInterval(() => {
+        current = Math.min(current + step, target);
+        entry.target.textContent = current;
+        if (current >= target) clearInterval(iv);
+      }, 30);
+      counterObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.counter-num[data-target]').forEach(el => counterObserver.observe(el));
+
+/* ═══════════════════════════════════════
+   FILTER BUTTONS
+═══════════════════════════════════════ */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const cat = this.dataset.cat;
+    filterByCategory(cat).catch(() => {
+      document.querySelectorAll('.blog-card').forEach(card => {
+        const match = cat === 'all' || card.dataset.category === cat;
+        card.style.display = match ? 'flex' : 'none';
+      });
+    });
+  });
+});
+
+/* ═══════════════════════════════════════
+   NEWSLETTER
+═══════════════════════════════════════ */
+document.querySelector('.newsletter-submit').addEventListener('click', function() {
+  const input = document.querySelector('.newsletter-input');
+  if (input.value && input.value.includes('@')) {
+    this.textContent = 'Prihlásený ✓';
+    this.style.background = '#2E7D32';
+    input.value = '';
+    input.placeholder = 'Ďakujeme!';
+  } else {
+    input.style.borderColor = 'var(--red)';
+    setTimeout(() => input.style.borderColor = '', 1000);
+  }
+});
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  loadPublicData();
+});
+</script>
+
+</body>
+</html>
